@@ -127,9 +127,13 @@ class $proxyClass extends $class implements EntityProxy
 }
 
 PROXY;
+        
+        $currentProxyFileContent = file_exists($proxyFile) ? file_get_contents($proxyFile) : false;
 
-        $this->checkProxyDirectory();
-        file_put_contents($proxyFile, $content);
+        if($currentProxyFileContent !== $content) {
+            $this->checkProxyDirectory();
+            file_put_contents($proxyFile, $content);
+        }
 
         if (!class_exists($proxyClass)) {
             require $proxyFile;
