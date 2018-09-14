@@ -132,11 +132,16 @@ PROXY;
 
         if($currentProxyFileContent !== $content) {
             $this->checkProxyDirectory();
-            file_put_contents($proxyFile, $content);
+            file_put_contents($proxyFile, $content, LOCK_EX);
         }
 
         if (!class_exists($proxyClass)) {
+            // using locks to avoid reading a partially written file
+            $fo = fopen($proxyFile, 'r');
+            flock($fo, LOCK_SH);
             require $proxyFile;
+            flock($fo, LOCK_UN);
+            fclose($fo);
         }
 
         return $this->newProxyInstance($proxyClass);
@@ -201,7 +206,7 @@ METHOD;
         if (!array_key_exists($proxyClass, $prototypes)) {
             $rc = @unserialize(sprintf('C:%d:"%s":0:{}', strlen($proxyClass), $proxyClass));
 
-            if (false === $rc) {
+            if (false === $rc || $rc instanceof \__PHP_Incomplete_Class) {
                 $rc = new \ReflectionClass($proxyClass);
                 return $rc->newInstanceWithoutConstructor();
             }
