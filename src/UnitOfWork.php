@@ -550,6 +550,12 @@ class UnitOfWork
         if (null === $id) {
             throw new \LogicException('Entity marked for managed but could not find identity');
         }
+
+        // FIX add those 3 lines
+        if(isset($this->entityStates[$oid]) && $this->entityStates[$oid] === self::STATE_MANAGED) {
+            return;
+        }
+
         $this->entityStates[$oid] = self::STATE_MANAGED;
         $this->entityIds[$oid] = $id;
         $this->entitiesById[$id] = $entity;
@@ -804,7 +810,9 @@ class UnitOfWork
         $oid = spl_object_hash($entity);
         $this->originalEntityData[$oid] = $node->values();
         $classMetadata->setId($entity, $id);
-        $this->addManaged($entity);
+
+        // FIX remove this line
+//        $this->addManaged($entity);
 
         return $entity;
     }

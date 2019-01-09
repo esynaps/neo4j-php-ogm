@@ -21,7 +21,7 @@ class DetachDeleteTest extends IntegrationTestCase
     {
         $actor = $this->em->getRepository(Person::class)->findOneBy(['name' => 'Al Pacino']);
         $this->em->remove($actor);
-        $this->setExpectedException(Neo4jException::class);
+        $this->setExpectedException(\Exception::class, null);
         $this->em->flush();
     }
 
@@ -32,7 +32,7 @@ class DetachDeleteTest extends IntegrationTestCase
         $exceptionMessage = null;
         try {
             $this->em->flush();
-        } catch (Neo4jException $e) {
+        } catch (\Exception $e) {
             $exceptionMessage = $e->getMessage();
         }
         $this->assertNotNull($exceptionMessage);
